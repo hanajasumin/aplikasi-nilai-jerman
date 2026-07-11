@@ -2,7 +2,7 @@ import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
-import json  # <-- PERBAIKAN: Menambahkan pustaka untuk membaca teks JSON
+import json
 
 # ==========================================
 # 1. KONFIGURASI KONEKSI GOOGLE SHEETS
@@ -12,12 +12,10 @@ def hubungkan_ke_sheets():
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive"
     ]
-    
-    # Membaca data kredensial Google dari menu Secrets internet Streamlit
-    creds_dict = json.loads(st.secrets["gcreds"])
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-    
+    # Mengambil kredensial dari file JSON
+    creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
     client = gspread.authorize(creds)
+    # Membuka Google Sheets berdasarkan nama filenya
     sheet = client.open("Nilai_Bahasa_Jerman_Fase_F").sheet1
     return sheet
 
@@ -31,38 +29,44 @@ except Exception as e:
 # ==========================================
 # 2. SISTEM KEAMANAN (HALAMAN LOGIN)
 # ==========================================
+# Parameter variabel password yang bisa Ibu sesuaikan sendiri
 PASSWORD_RAHASIA = "Jerman62" 
 
+# Menginisialisasi status login di memori browser (session state)
 if "terlogin" not in st.session_state:
     st.session_state["terlogin"] = False
 
+# Tampilan Halaman Login jika pengguna belum sukses login
 if not st.session_state["terlogin"]:
     st.title("Gembok Keamanan Aplikasi")
     st.subheader("SMA Negeri 62 Maluku Tengah")
     
+    # Kolom input untuk memasukkan kata sandi
     input_password = st.text_input("Masukkan Password Aplikasi:", type="password")
     tombol_login = st.button("Masuk")
     
     if tombol_login:
         if input_password == PASSWORD_RAHASIA:
             st.session_state["terlogin"] = True
-            st.rerun()
+            st.rerun() # Memuat ulang halaman untuk menampilkan form nilai
         else:
             st.error("Password salah! Silakan coba lagi.")
             
-    st.stop()
+    st.stop() # Menghentikan kode di sini agar form nilai di bawah tidak terbuka
 
 # ==========================================
-# 3. TAMPILAN ANTARMUKA FORM NILAI
+# 3. TAMPILAN ANTARMUKA FORM NILAI (JIKA LOGIN BERHASIL)
 # ==========================================
 st.title("Aplikasi Input Nilai Bahasa Jerman Fase F")
 st.subheader("SMA Negeri 62 Maluku Tengah")
 st.write("Silakan isi formulir di bawah ini untuk menginput nilai formatif atau sumatif.")
 
+# Tombol Keluar (Logout) untuk keamanan tambahan
 if st.button("Keluar dari Aplikasi"):
     st.session_state["terlogin"] = False
     st.rerun()
 
+# Membuat formulir input
 with st.form("form_nilai", clear_on_submit=True):
     kelas = st.selectbox("Pilih Kelas:", ["Kelas XI", "Kelas XII"])
     jenis_nilai = st.radio("Jenis Nilai:", ["Formatif", "Sumatif"])
