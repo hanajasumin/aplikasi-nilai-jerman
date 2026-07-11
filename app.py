@@ -11,10 +11,11 @@ def hubungkan_ke_sheets():
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive"
     ]
-    # Mengambil kredensial dari file JSON
-    creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+   # KODE UNTUK INTERNET: Membaca dari menu Secrets Streamlit
+    creds_dict = json.loads(st.secrets["gcreds"])
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    
     client = gspread.authorize(creds)
-    # Membuka Google Sheets berdasarkan nama filenya
     sheet = client.open("Nilai_Bahasa_Jerman_Fase_F").sheet1
     return sheet
 
