@@ -2,7 +2,6 @@ import streamlit as st
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
-import json
 
 # ==========================================
 # 1. KONFIGURASI KONEKSI GOOGLE SHEETS
@@ -13,9 +12,7 @@ def hubungkan_ke_sheets():
         "https://www.googleapis.com/auth/drive"
     ]
     # Mengambil kredensial dari file JSON
-    import json
-creds_dict = json.loads(st.secrets["gcreds"])
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
     client = gspread.authorize(creds)
     # Membuka Google Sheets berdasarkan nama filenya
     sheet = client.open("Nilai_Bahasa_Jerman_Fase_F").sheet1
